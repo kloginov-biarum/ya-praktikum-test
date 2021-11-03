@@ -1,14 +1,6 @@
-
-
-import org.junit.gen5.api.Test;
-
 import java.util.Locale;
 
 public class Cost {
-
-
-
-
 
     public double costCalc(double distance, boolean big, boolean fragile, String load ){
         double minCost = 400;
@@ -49,7 +41,6 @@ public class Cost {
              finalCost+=300;
         }
          else if (fragileValue==false){
-
          }
          else {
              throw new IllegalArgumentException("Некорректное значение аргумента fragile. Допустимо true  или false");
@@ -66,18 +57,11 @@ public class Cost {
                  finalCost*=1.2;
                  break;
          }
-
          if (finalCost < minCost){
              finalCost = minCost;
          }
          return finalCost;
     }
 
-
-    @Test
-    public static void main (String[] args){
-        Cost cost = new Cost();
-        System.out.println(cost.costCalc(  10, true, false, null));
-    }
 
 }
