@@ -2,6 +2,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 import java.util.stream.Stream;
 
@@ -12,13 +13,22 @@ public class CostTest {
     Cost cost = new Cost();
 
 
+    /**
+     * С целью снижения уровня дублирования кода реализуем проверки позитивных кейсов
+     * корректных входных значений с помощью параметризированного теста и провайдера данных
+     * @param expected
+     * @param distance
+     * @param big
+     * @param fragile
+     * @param load
+     */
     @ParameterizedTest
     @MethodSource("dataProvider")
-    public void costCalcTest(double expected, double distance, boolean big, boolean fragile, String load) {
+    public void costCalcPositiveTest(double expected, double distance, boolean big, boolean fragile, String load) {
         assertEquals(expected, cost.costCalc(distance, big,fragile, load));
     }
 
-    static Stream <Arguments>  dataProvider(){
+    static Stream <Arguments> dataProvider(){
         return Stream.of(
                 arguments(1440, 45, true, false, "очень высокая"),
                 arguments(700, 15, false, false, "обычная"),
@@ -49,16 +59,49 @@ public class CostTest {
         );
     }
 
+    /**
+     * Выполним набор проверок негативных кейсов
+     * @param expected
+     * @param distance
+     * @param big
+     * @param fragile
+     * @param load
+     */
+    @ParameterizedTest
+    @MethodSource("dataProviderNegative")
+    public void costCalcNegativeTest(double expected, double distance, boolean big, boolean fragile, String load) {
+        assertNotEquals(expected, cost.costCalc(distance, big,fragile, load));
+    }
+
+    static Stream <Arguments> dataProviderNegative() {
+        return Stream.of(
+                arguments(1500, 45, true, false, "очень высокая"),
+                arguments(700, 13, false, true, "повышенная"),
+                arguments(500, 7, true, true, "высокая"),
+                arguments(1000, 1.5, false, false, "" )
+
+        );
+    }
+
+
+
+    /**
+     * Реализуем проверки исключений и текстов сообщений исключений
+     * @param exceptionMessage
+     * @param distance
+     * @param big
+     * @param fragile
+     * @param load
+     */
     @ParameterizedTest
     @MethodSource("dataProviderException")
     public void costCalcExceptionTest(String exceptionMessage,double distance, boolean big, boolean fragile, String load){
         Throwable exceptionThatWasThrown = assertThrows(IllegalArgumentException.class, () -> {
             cost.costCalc(distance, big,fragile, load);
         });
-        System.out.println("911:" + exceptionThatWasThrown.getMessage().contains(exceptionMessage));        assertTrue(exceptionThatWasThrown.getMessage().contains(exceptionMessage));
-
-
+        assertTrue(exceptionThatWasThrown.getMessage().contains(exceptionMessage));
     }
+
     static Stream <Arguments>  dataProviderException(){
         return Stream.of(
                 arguments("Расстояние не может быть меньше нуля, физика против!" ,-1,true, false, ""),
@@ -66,5 +109,15 @@ public class CostTest {
         );
     }
 
+    /**
+     * Убедимся, что NullPointer exception тоже отрабатывет
+     */
+    @Test
+    public void costCalcNullPointerExceptionTest(){
+        Throwable exceptionThatWasThrown = assertThrows(NullPointerException.class, () -> {
+            cost.costCalc(10, true,false, null);
+        });
+        assertTrue(exceptionThatWasThrown.getClass().equals(NullPointerException.class));
+    }
 
 }

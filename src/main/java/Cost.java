@@ -77,7 +77,7 @@ public class Cost {
     @Test
     public static void main (String[] args){
         Cost cost = new Cost();
-        System.out.println(cost.costCalc(  10, true, false, ""));
+        System.out.println(cost.costCalc(  10, true, false, null));
     }
 
 }
